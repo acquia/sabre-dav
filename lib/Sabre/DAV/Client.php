@@ -35,6 +35,8 @@ class Client {
     protected $password;
     protected $proxy;
     protected $trustedCertificates;
+    protected $ssl_certificate;
+    protected $ssl_certificate_password;
 
     /**
      * Basic authentication
@@ -126,6 +128,17 @@ class Client {
      */
     public function setVerifyPeer($value) {
         $this->verifyPeer = $value;
+    }
+
+    /**
+     * Adds an SSL Certificate to Enable HTTPS Two-Factor Authentication.
+     *
+     * @param string $ssl_certificate
+     * @param string $ssl_certificate_password
+     */
+    public function setSSLCertificate($ssl_certificate, $ssl_certificate_password = NULL) {
+        $this->ssl_certificate = $ssl_certificate;
+        $this->ssl_certificate_password = $ssl_certificate_password;
     }
 
     /**
@@ -332,6 +345,14 @@ class Client {
 
         if($this->trustedCertificates) {
             $curlSettings[CURLOPT_CAINFO] = $this->trustedCertificates;
+        }
+
+        // Enabling Two-Factor Authentication.
+        if ($this->ssl_certificate) {
+            $curlSettings[CURLOPT_SSLCERT] = $this->ssl_certificate;
+            if ($this->ssl_certificate_password) {
+                $curlSettings[CURLOPT_SSLCERTPASSWD] = $this->ssl_certificate_password;
+            }
         }
 
         switch ($method) {
